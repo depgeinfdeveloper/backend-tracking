@@ -1,0 +1,15 @@
+export const IP_SERVER = process.env.IP_SERVER;
+export const PORT_SERVER = process.env.PORT_SERVER || 3977;
+
+export const IP_SERVER_FACE_RECOGNITION = process.env.IP_SERVER_FACE_RECOGNITION;
+export const PORT_SERVER_FACE_RECOGNITION = process.env.PORT_SERVER_FACE_RECOGNITION;
+
+export const DATABASE_GEOLOCATION = process.env.MYSQL_DATABASE_GEOLOCATION;
+export const USERNAME_GEOLOCATION = process.env.MYSQL_USER_GEOLOCATION;
+export const PASSWORD_GEOLOCATION = process.env.MYSQL_PASSWORD_GEOLOCATION;
+export const HOST_GEOLOCATION = process.env.MYSQL_HOST_GEOLOCATION;
+export const PORT_GEOLOCATION = process.env.MYSQL_PORT_GEOLOCATION;
+
+
+
+export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;

@@ -1,0 +1,98 @@
+import db from "#models";
+const { User, Role, UserRole } = db;
+
+export async function findUserByCip(user_cip) {
+    return await User.findOne({
+        where: {number_cip_code: user_cip},
+        attributes: [
+            'id',
+            'number_cip_code',
+            'grade',
+            'firstname',
+            'lastname',
+            'number_phone',
+            'photo',
+            'gender',
+            'email',
+        ],
+        include: [
+            {
+                model: Role,
+                as: 'roles',
+                attributes: ['id', 'name'],
+                through: { attributes: [] }
+            }
+        ]
+    });
+}
+
+export async function findUserById(user_id) {
+    return await User.findOne({
+        where: {id: user_id},
+        attributes: [
+            'id',
+            'number_cip_code',
+            'grade',
+            'firstname',
+            'lastname',
+            'number_phone',
+            'photo',
+            'gender',
+            'email',
+        ],
+        include: [
+            {
+                model: Role,
+                as: 'roles',
+                attributes: ['id', 'name', 'display_name'],
+                through: {
+                    attributes: [], // evita mostrar model_type y demás
+                },
+            },
+        ],
+    });
+}
+
+export async function createUserFromMaspol(data) {
+    const user =  await User.create({
+        number_cip_code: data.cip,
+        grade: `${data.grado} PNP` || 'SIN GRADO',
+        firstname: data.nom || 'NOMBRE',
+        lastname: `${data.pater} ${data.mater}` || 'APELLIDO',
+        gender: `${data.tsexo_des.trim()}`,
+    });
+
+    const role = await Role.findOne({ where: { name: 'agent' } });
+
+    await UserRole.create({
+        role_id: role.id,
+        model_id: user.id,
+        model_type: 'App\\Models\\User'
+    })
+
+    await user.reload({
+        include: [
+            {
+                association: User.associations.roles, // asegúrate que esté definida
+            },
+        ],
+    });
+
+    return user;
+}
+
+export async function updateUser(id, data) {
+    const allowedFields = ['number_phone', 'email'];
+
+    const updateData = Object.fromEntries(
+        Object.entries(data).filter(([key]) => allowedFields.includes(key))
+    );
+
+    const updatedCount = await User.update(updateData, { where: { id } });
+
+    if (updatedCount === 0) {
+        return null;
+    }
+
+    return await findUserById(id);
+}
