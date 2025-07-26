@@ -1,6 +1,6 @@
 import db from "#models";
 import {jwt} from '#utils';
-import {findUserByCip, validateCipWithMaspol, createUserFromMaspol, validateUserToken} from '#services';
+import {findUserByCip, validateCipWithMaspolDirin, createUserFromMaspol, validateUserTokenDirin} from '#services';
 
 const {User} = db;
 
@@ -10,21 +10,20 @@ const login = async (req, res) => {
     try {
         let user = await findUserByCip(user_cip);
         if (!user) {
-            const cipResponse = await validateCipWithMaspol(user_cip);
-            if (cipResponse.stateResponse === "1") {
+            const cipResponse = await validateCipWithMaspolDirin(user_cip);
+            if (cipResponse.length <= 0) {
                 return res.status(403).json({
                     success: false,
                     message: 'El CIP no es válido',
                 });
             }
 
-            const maspolData = cipResponse.data;
-            user = await createUserFromMaspol(maspolData[0]);
+            user = await createUserFromMaspol(cipResponse[0]);
         }
 
         try {
 
-            const tokenResponse = await validateUserToken(user_cip, user_token);
+            const tokenResponse = await validateUserTokenDirin(user_cip, user_token);
             if (!tokenResponse.valid) {
                 return res.status(401).json({
                     success: false,
