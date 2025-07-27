@@ -67,7 +67,7 @@ const register = async (req, res) => {
             });
         }
         console.log(error);
-        return res.status(500).json({success: false, message: 'Error de servidor al crear usuarios', error: e});
+        return res.status(500).json({success: false, message: 'Error de servidor al crear usuarios', error: error});
     }
 }
 
