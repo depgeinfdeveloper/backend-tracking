@@ -8,8 +8,8 @@ import {dbConnectMysqlSocialEventGeo} from '#config';
 
 
 
-server.listen(PORT_SERVER, `${IP_SERVER}` || 'localhost', () => {
-    console.log(`Socket.io escuchando en http://${IP_SERVER}:3000`);
+server.listen(PORT_SERVER, () => {
+    console.log(`Socket.io escuchando en el puert ${PORT_SERVER}`);
     io.sockets.on("connection", (socket) => {
         console.log("Nuevo usuario conectado");
 
