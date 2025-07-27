@@ -11,6 +11,7 @@ export async function findUserByCip(user_cip) {
             'firstname',
             'lastname',
             'number_phone',
+            'password',
             'photo',
             'gender',
             'email',
@@ -54,12 +55,26 @@ export async function findUserById(user_id) {
 }
 
 export async function createUserFromMaspol(data) {
+
+    const existing = await User.findOne({
+        where: {
+            number_cip_code: data.cip
+        }
+    });
+
+    if (existing) {
+        const error = new Error('El usuario ya ha activado su cuenta, inicie sesión para continuar');
+        error.status = 409;
+        throw error;
+    }
+
     const user =  await User.create({
-        number_cip_code: data.number_cip_code,
-        grade: `${data.grade} PNP` || 'SIN GRADO',
-        firstname: data.firstname || 'NOMBRE',
-        lastname: `${data.lastname}` || 'APELLIDO',
-        gender: `${data.gender}`,
+        number_cip_code: data.cip,
+        grade: `${data.grado} PNP` || 'SIN GRADO',
+        firstname: data.nom || 'NOMBRE',
+        lastname: `${data.pater} ${data.mater}` || 'APELLIDO',
+        gender: `${data.tsexo_des.trim()}`,
+        password: data.user_pin,
     });
 
     const role = await Role.findOne({ where: { name: 'agent' } });

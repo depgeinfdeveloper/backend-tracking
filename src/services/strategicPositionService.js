@@ -50,7 +50,7 @@ export async function findStrategicPositionByUserId(user_id){
             {
                 model: StrategicPosition,
                 as: 'strategic_position',
-                attributes: ['id', 'name', 'officer_change_cip', 'officer_change_name', 'officer_change_phone', 'address', 'latitude', 'longitude'],
+                attributes: ['id', 'type_service','name', 'officer_change_cip', 'officer_change_name', 'officer_change_phone', 'address', 'latitude', 'longitude'],
             }
         ]
     });

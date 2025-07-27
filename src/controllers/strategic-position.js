@@ -35,8 +35,8 @@ async function byCip(req, res) {
 
 async function byUserId(req, res) {
 
-    const {user_id} = req.body;
-    console.log(user_id)
+    const { user_id } = req.user;
+    console.log("byUserId", user_id)
     try{
         if (!user_id) {
             return res.status(400).json({

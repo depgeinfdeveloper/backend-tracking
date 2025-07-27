@@ -1,5 +1,5 @@
 import {server} from "./app.js";
-import {PORT_SERVER, IP_SERVER, io} from "#utils";
+import {PORT_SERVER, io} from "#utils";
 import {dbConnectMysqlSocialEventGeo} from '#config';
 
 (async () => {
@@ -8,8 +8,8 @@ import {dbConnectMysqlSocialEventGeo} from '#config';
 
 
 
-server.listen(PORT_SERVER, () => {
-    console.log(`Socket.io escuchando en el puert ${PORT_SERVER}`);
+server.listen(PORT_SERVER,() => {
+    console.log(`Servidor corriendo en puerto ${PORT_SERVER}`);
     io.sockets.on("connection", (socket) => {
         console.log("Nuevo usuario conectado");
 

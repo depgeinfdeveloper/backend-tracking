@@ -3,7 +3,8 @@ import * as yup from 'yup';
 
 
 export const SignInValidationSchema = yup.object().shape({
-    user_cip: yup.string().trim().required('El usuario es requerido'),
+    user_cip: yup.string().trim().required('El numero de cip es requerido'),
+    user_pin: yup.string().trim().required('El pin de seguridad es requeridoddddd')
 })
 
 export const SignInTokenValidationSchema = yup.object().shape({

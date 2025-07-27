@@ -80,6 +80,11 @@ export function defineUser(sequelize, DataTypes) {
         paranoid: true
     });
 
+    User.prototype.comparePassword = function (passwordEntry) {
+        return this.password == passwordEntry
+    }
+
+
     User.prototype.toJSON = function () {
         let values = Object.assign({}, this.get());
         delete values.password;

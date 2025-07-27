@@ -7,6 +7,7 @@ import {
     PORT_GEOLOCATION,
 } from '#utils';
 
+
 export const sequelizeSocialEventGeo = new Sequelize(DATABASE_GEOLOCATION, USERNAME_GEOLOCATION, PASSWORD_GEOLOCATION, {
     host: HOST_GEOLOCATION,
     port: PORT_GEOLOCATION,

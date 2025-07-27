@@ -1,70 +1,30 @@
 import db from "#models";
-import { jwt } from '#utils';
-import { findUserByCip, validateCipWithMaspol, createUserFromMaspol, validateUserToken } from '#services';
+import {jwt} from '#utils';
+import {findUserByCip, validateCipWithMaspol, createUserFromMaspol, validateUserToken} from '#services';
 
-const { User } = db;
-
-
-const verifyUser = async (req, res) => {
-    const { user_cip } = req.body;
-    try {
-        let user = await findUserByCip(user_cip);
-        console.log("user", user);
-
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "usuario no existe en el sistema",
-                error: 'user not found'
-            });
-        }
-
-        return res.status(200).json({
-            success: true,
-            message: 'El usuario si existe en el sistema',
-            data: true
-        });
-
-
-    } catch (e) {
-        return res.status(500).json({
-            success: false,
-            message: 'Error al verificar usuario en el sistema',
-            error: e.message,
-        });
-    }
-}
-
-const registerUser = async (req, res) => {
-    const data = req.body;
-    console.log("Datos a registrar:", data);
-    try {
-
-        await createUserFromMaspol(data);
-        return res.status(200).json({
-            success: true,
-            message: 'El usuario ha sido creado exitosamente',
-            data: data
-        });
-
-    } catch (e) {
-        console.log(e);
-        return res.status(500).json({ success: false, message: 'Error de servidor al crear usuarios', error: e });
-    }
-}
+const {User} = db;
 
 const login = async (req, res) => {
-    const { user_cip } = req.body;
-
+    const {user_cip, user_pin} = req.body;
+    console.log(user_cip);
+    console.log(user_pin)
     try {
         let user = await findUserByCip(user_cip);
+
         if (!user) {
-            return res.status(401).json({
+            return res.status(404).json({
                 success: false,
-                message: "El usuario no ha activado su cuenta",
-                error: 'user not found'
+                message: 'El usuario no existe o no ha activado su cuenta',
+                error: 'El usuario no existe o no ha activado su cuenta'
             });
         }
+
+        ///
+
+
+        const matched = await user.comparePassword(user_pin);
+        if (!matched) return res.status(403).send({success: false, message: 'Credenciales incorrectas', error: "Credenciales incorrectas"});
+
 
         const newAccessToken = await jwt.createAccessToken(user)
         const newRefreshToken = await jwt.createRefreshToken(user)
@@ -79,16 +39,41 @@ const login = async (req, res) => {
             }
         });
 
+
     } catch (e) {
         console.log(e);
-        return res.status(500).json({ success: false, message: 'Error de servidor', error: e });
+        return res.status(500).json({success: false, message: 'Error de servidor', error: e});
     }
 
 }
 
+const register = async (req, res) => {
+    const data = req.body;
+    console.log("Datos a registrar:", data);
+    try {
+
+        await createUserFromMaspol(data);
+        return res.status(200).json({
+            success: true,
+            message: 'El usuario ha sido creado exitosamente.',
+            data: data
+        });
+
+    } catch (error) {
+        if (error.status === 409) {
+            return res.status(409).json({
+                success: false,
+                message: error.message
+            });
+        }
+        console.log(error);
+        return res.status(500).json({success: false, message: 'Error de servidor al crear usuarios', error: e});
+    }
+}
+
 
 const refreshAccessToken = async (refreshToken) => {
-    const { user_id } = jwt.decoded(refreshToken);
+    const {user_id} = jwt.decoded(refreshToken);
     const user = await User.findOne({
         where: {
             idusuarios: user_id
@@ -100,6 +85,5 @@ const refreshAccessToken = async (refreshToken) => {
 
 export const AuthController = {
     login,
-    verifyUser,
-    registerUser,
+    register
 }

@@ -5,9 +5,7 @@ import {SignInValidationSchema, RefreshAccessTokenValidationSchema, SignInTokenV
 
 const api = express.Router();
 
-
-api.post("/auth/verify-user-system", AuthController.verifyUser);
-api.post("/auth/register-user-system", AuthController.registerUser);
 api.post("/auth/login", validate(SignInValidationSchema), AuthController.login);
+api.post("/auth/register", AuthController.register);
 
 export const authRoutes = api;
