@@ -70,7 +70,7 @@ export async function createUserFromMaspol(data) {
 
     const user =  await User.create({
         number_cip_code: data.number_cip_code,
-        grade: `${data.grade} PNP` || 'SIN GRADO',
+        grade: `${data.grade}` || 'SIN GRADO',
         firstname: data.firstname || 'SIN NOMBRE',
         lastname: `${data.lastname}` || 'SIN APELLIDO',
         gender: `${data.gender}`,
