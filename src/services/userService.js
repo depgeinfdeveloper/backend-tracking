@@ -55,11 +55,11 @@ export async function findUserById(user_id) {
 
 export async function createUserFromMaspol(data) {
     const user =  await User.create({
-        number_cip_code: data.cip,
-        grade: `${data.grado} PNP` || 'SIN GRADO',
-        firstname: data.nom || 'NOMBRE',
-        lastname: `${data.pater} ${data.mater}` || 'APELLIDO',
-        gender: `${data.tsexo_des.trim()}`,
+        number_cip_code: data.number_cip_code,
+        grade: `${data.grade} PNP` || 'SIN GRADO',
+        firstname: data.firstname || 'NOMBRE',
+        lastname: `${data.lastname}` || 'APELLIDO',
+        gender: `${data.gender}`,
     });
 
     const role = await Role.findOne({ where: { name: 'agent' } });

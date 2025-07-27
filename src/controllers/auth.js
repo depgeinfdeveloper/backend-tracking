@@ -1,58 +1,75 @@
 import db from "#models";
 import {jwt} from '#utils';
-import {findUserByCip, validateCipWithMaspolDirin, createUserFromMaspol, validateUserTokenDirin} from '#services';
+import {findUserByCip, validateCipWithMaspol, createUserFromMaspol, validateUserToken} from '#services';
 
 const {User} = db;
 
-const login = async (req, res) => {
-    const {user_cip, user_token} = req.body;
-    console.log(req.body)
+
+const verifyUser = async (req, res) => {
+    const {user_cip } = req.body;
     try {
         let user = await findUserByCip(user_cip);
+
         if (!user) {
-            const cipResponse = await validateCipWithMaspolDirin(user_cip);
-            if (cipResponse.length <= 0) {
-                return res.status(403).json({
-                    success: false,
-                    message: 'El CIP no es válido',
-                });
-            }
-
-            user = await createUserFromMaspol(cipResponse[0]);
-        }
-
-        try {
-
-            const tokenResponse = await validateUserTokenDirin(user_cip, user_token);
-            if (!tokenResponse.valid) {
-                return res.status(401).json({
-                    success: false,
-                    message: tokenResponse.message,
-                    error: tokenResponse.message
-                });
-            }
-
-            const newAccessToken = await jwt.createAccessToken(user)
-            const newRefreshToken = await jwt.createRefreshToken(user)
-
-            return res.status(200).json({
-                success: true,
-                message: 'Credenciales correctas',
-                data: {
-                    access: newAccessToken,
-                    refresh: newRefreshToken,
-                    user: user
-                }
-            });
-
-
-        } catch (tokenError) {
-            return res.status(502).json({
+            return res.status(401).json({
                 success: false,
-                message: 'Error consultando el token en la API externa',
-                error: tokenError.message,
+                message: "usuario no existe en el sistema",
+                error: 'user not found'
             });
         }
+
+        return res.status(200).json({
+            success: true,
+            message: 'El usuario si existe en el sistema',
+            data: true
+        });
+
+
+    } catch (e) {
+        return res.status(500).json({
+            success: false,
+            message: 'Error al verificar usuario en el sistema',
+            error: e.message,
+        });
+    }
+}
+
+const registerUser = async (req, res) => {
+    const data = req.body;
+    console.log("Datos a registrar:", data);
+    try {
+
+        await createUserFromMaspol(data);
+        return res.status(200).json({
+            success: true,
+            message: 'El usuario ha sido creado exitosamente',
+            data: data
+        });
+
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({success: false, message: 'Error de servidor al crear usuarios', error: e});
+    }
+}
+
+const login = async (req, res) => {
+    const {user_cip} = req.body;
+
+    try {
+        let user = await findUserByCip(user_cip);
+        const newAccessToken = await jwt.createAccessToken(user)
+        const newRefreshToken = await jwt.createRefreshToken(user)
+
+        return res.status(200).json({
+            success: true,
+            message: 'Credenciales correctas',
+            data: {
+                access: newAccessToken,
+                refresh: newRefreshToken,
+                user: user
+            }
+        });
+
     } catch (e) {
         console.log(e);
         return res.status(500).json({success: false, message: 'Error de servidor', error: e});
@@ -74,4 +91,6 @@ const refreshAccessToken = async (refreshToken) => {
 
 export const AuthController = {
     login,
+    verifyUser,
+    registerUser,
 }
