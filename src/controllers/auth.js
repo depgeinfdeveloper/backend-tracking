@@ -1,14 +1,15 @@
 import db from "#models";
-import {jwt} from '#utils';
-import {findUserByCip, validateCipWithMaspol, createUserFromMaspol, validateUserToken} from '#services';
+import { jwt } from '#utils';
+import { findUserByCip, validateCipWithMaspol, createUserFromMaspol, validateUserToken } from '#services';
 
-const {User} = db;
+const { User } = db;
 
 
 const verifyUser = async (req, res) => {
-    const {user_cip } = req.body;
+    const { user_cip } = req.body;
     try {
         let user = await findUserByCip(user_cip);
+        console.log("user", user);
 
         if (!user) {
             return res.status(401).json({
@@ -48,15 +49,23 @@ const registerUser = async (req, res) => {
 
     } catch (e) {
         console.log(e);
-        return res.status(500).json({success: false, message: 'Error de servidor al crear usuarios', error: e});
+        return res.status(500).json({ success: false, message: 'Error de servidor al crear usuarios', error: e });
     }
 }
 
 const login = async (req, res) => {
-    const {user_cip} = req.body;
+    const { user_cip } = req.body;
 
     try {
         let user = await findUserByCip(user_cip);
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "El usuario no ha activado su cuenta",
+                error: 'user not found'
+            });
+        }
+
         const newAccessToken = await jwt.createAccessToken(user)
         const newRefreshToken = await jwt.createRefreshToken(user)
 
@@ -72,14 +81,14 @@ const login = async (req, res) => {
 
     } catch (e) {
         console.log(e);
-        return res.status(500).json({success: false, message: 'Error de servidor', error: e});
+        return res.status(500).json({ success: false, message: 'Error de servidor', error: e });
     }
 
 }
 
 
 const refreshAccessToken = async (refreshToken) => {
-    const {user_id} = jwt.decoded(refreshToken);
+    const { user_id } = jwt.decoded(refreshToken);
     const user = await User.findOne({
         where: {
             idusuarios: user_id
